@@ -28,6 +28,7 @@ Tile.prototype = {
     changeState: function() {
         this.state = true;
         this.fillColor = (this.value >= 0 ? '#E0E0E0' : '#FF0000');
+        this.setText();
     },
     setBomb: function() {
         this.value = -1;

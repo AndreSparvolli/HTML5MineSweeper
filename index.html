@@ -20,7 +20,7 @@
                 <a href='javascript:startGame(1)'>Begginer (9x9 - 10 Mines)</a> - <a href='javascript:startGame(2)'>Intermediate (16x16 - 30 Mines)</a> - <a href='javascript:startGame(3)'>Expert (30x16 - 99 Mines)</a>
             </p>
 
-            <canvas id="gameCanvas" width="600" height="600"></canvas>
+            <canvas id="gameCanvas" width="800" height="600"></canvas>
         </div>
 
         <script>
@@ -30,19 +30,32 @@
             var isGameOn = false;
             var minefield;
             var showAlert = 0;
+            var difficult = 0;
 
             setInterval(function() {
                 if (isGameOn) {
                     context.clearRect(0, 0, context.canvas.width, context.canvas.height);
                     context.strokeRect(0, 0, context.canvas.width, context.canvas.height);
                     minefield.drawField();
+                    showFlags();
                 } else {
                     context.strokeRect(0, 0, context.canvas.width, context.canvas.height);
                 }
 
+                if (isGameOn && minefield.checkVictoryCondition() && showAlert == 0) {
+                    showAlert = 1;
+
+                    if (confirm('Congratulations! You clreared the field!\nDo you wanna play again?')) {
+                        startGame(difficult);
+                    }
+                }
+
                 if (isGameOn && minefield.mineTriggered && showAlert == 0) {
-                    alert('BOOM! You exploded yourself! =(');
-                    showAlert++;
+                    showAlert = 1;
+
+                    if (confirm('BOOM! You exploded yourself!\nDo you wanna play again?')) {
+                        startGame(difficult);
+                    }
                 }
             }, 1000 / 25);
 
@@ -50,8 +63,8 @@
 
             function getMouseClickPosition(event) {
                 if (event.x != undefined && event.y != undefined) {
-                    var mouseX = event.x;
-                    var mouseY = event.y;
+                    var mouseX = event.pageX;
+                    var mouseY = event.pageY;
                 }
 
                 mouseX -= context.canvas.offsetLeft;
@@ -66,27 +79,36 @@
                 isGameOn = false;
                 minefield = null;
                 showAlert = 0;
+                difficult = level;
 
                 switch (level) {
                     case 1:
                         minefield = new Minefield(context, 9, 9, 10);
-                        minefield.populateField(50, 25, 75);
+                        minefield.populateField(50, 175, 70);
                         minefield.generateBombs();
                         isGameOn = true;
                         break;
                     case 2:
                         minefield = new Minefield(context, 16, 16, 30);
-                        minefield.populateField(32, 15, 50);
+                        minefield.populateField(32, 145, 35);
                         minefield.generateBombs();
                         isGameOn = true;
                         break;
                     case 3:
                         minefield = new Minefield(context, 16, 30, 99);
-                        minefield.populateField(32, 15, 50);
+                        minefield.populateField(26, 11, 100);
                         minefield.generateBombs();
                         isGameOn = true;
-                        break;                        
+                        break;
+                }
+            }
 
+            function showFlags() {
+                if (isGameOn) {
+                    context.font = '25px Arial';
+                    context.textAlign = 'left'
+                    context.fillStyle = '#000000';
+                    context.fillText('Flags: ' + minefield.flagsAvaible, 10, 30);
                 }
             }
         </script>

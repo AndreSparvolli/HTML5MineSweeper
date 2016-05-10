@@ -5,6 +5,8 @@ function Minefield(context, rows, cols, mines) {
     this.rows = rows;
     this.cols = cols;
     this.mines = mines;
+    this.flagsAvaible = mines;
+    this.activeTiles = rows * cols;
     this.mineTriggered = false;
     this.tileQueue = [];
     this.field = this.initializeField(rows, cols);
@@ -21,15 +23,15 @@ Minefield.prototype = {
         return tempField;
     },
     populateField: function(tileSize, initPosX, initPosY) {
-        var X_POS = initPosX;
+        var Y_POS = initPosY;
 
         for (var i = 0; i < this.rows; i++) {
-            X_POS += tileSize;
-            var Y_POS = initPosY;
+            Y_POS += tileSize;
+            var X_POS = initPosX;
 
             for (var j = 0; j < this.cols; j++) {
                 this.field[i][j] = new Tile(X_POS, Y_POS, i, j, tileSize);
-                Y_POS += tileSize;
+                X_POS += tileSize;
             }
         }
     },
@@ -86,6 +88,7 @@ Minefield.prototype = {
                             if (!tile.isBomb()) {
                                 if (!tile.isBlank()) {
                                     tile.changeState();
+                                    this.activeTiles--;
                                 } else {
                                     this.processTile(tile);
                                 }
@@ -96,10 +99,14 @@ Minefield.prototype = {
                         }
                     } else {
                         if (!tile.flag && !tile.mark) {
-                            tile.setFlagOn();
+                            if (this.flagsAvaible > 0) {
+                                this.flagsAvaible--;
+                                tile.setFlagOn();
+                            }
                         } else {
                             if (tile.flag) {
                                 tile.setMarkOn();
+                                this.flagsAvaible++;
                             } else {
                                 tile.setMarkOff();
                             }
@@ -117,6 +124,7 @@ Minefield.prototype = {
         }
 
         tile.changeState();
+        this.activeTiles--;
         this.checkSurroundingTiles(tile.arrayPositionX, tile.arrayPositionY);
 
         if (this.tileQueue.length > 0) {
@@ -140,6 +148,7 @@ Minefield.prototype = {
                                 this.tileQueue.push(tile);
                             } else {
                                 tile.changeState();
+                                this.activeTiles--;
                             }
                         }
                     }
@@ -161,9 +170,13 @@ Minefield.prototype = {
 
                 if (tile.isBomb()) {
                     tile.changeState();
+                    this.activeTiles--;
                 }
             }
         }
+    },
+    checkVictoryCondition: function() {
+        return (this.activeTiles == this.mines);
     },
     drawField: function() {
         var i, j;
