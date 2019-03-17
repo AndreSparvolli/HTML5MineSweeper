@@ -45,17 +45,13 @@
                 if (isGameOn && minefield.checkVictoryCondition() && showAlert == 0) {
                     showAlert = 1;
 
-                    if (confirm('Congratulations! You clreared the field!\nDo you wanna play again?')) {
-                        startGame(difficult);
-                    }
+					promptAlert('Congratulations! You clreared the field!\nDo you wanna play again?', difficult);
                 }
 
                 if (isGameOn && minefield.mineTriggered && showAlert == 0) {
                     showAlert = 1;
 
-                    if (confirm('BOOM! You exploded yourself!\nDo you wanna play again?')) {
-                        startGame(difficult);
-                    }
+					promptAlert('BOOM! You exploded yourself!\nDo you wanna play again?', difficult);
                 }
             }, 1000 / 25);
 
@@ -111,6 +107,14 @@
                     context.fillText('Flags: ' + minefield.flagsAvaible, 10, 30);
                 }
             }
+
+			function promptAlert(text, difficult) {
+				setTimeout( function() {
+						if (confirm(text)) {
+							startGame(difficult);
+						}
+				}, 15);
+			}
         </script>
     </body>
 </html>
